@@ -1,0 +1,26 @@
+doctype html
+//if lt IE 7
+  html.no-js.lt-ie9.lt-ie8.lt-ie7
+//if IE 7
+  html.no-js.lt-ie9.lt-ie8
+//if IE 8
+  html.no-js.lt-ie9
+// [if gt IE 8] <!
+html.no-js
+  // <![endif]
+  head
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    base(href='/')
+    title
+    meta(name='description', content='')
+    meta(name='viewport', content='width=device-width')
+    link(rel='stylesheet', href='app/landing.css')
+
+  body
+    .container
+      .col-md-8.col-md-offset-2(style='margin-top: 10%;')
+        .jumbotron.text-center
+          h1 Bienvenido
+          br
+          a.btn.btn-primary.btn-lg(type='button', href='/auth/producteca') Ingresar
