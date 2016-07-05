@@ -43,10 +43,8 @@ exports.getAll = (req, res, next) => Listing.find({}, send(res, next))
 exports.getOne = (req, res, next) => findOne(req, next, send(res, next))
 
 exports.create = (req, res, next) => {
-  var listing;
-  listing = req.body;
-  listing.initial_sold_quantity = req.body.sold_quantity;
-  return Listing.create(listing, send(res, next));
+  var listing = req.body;
+  return Listing.createInitializedListing(listing, send(res, next));
 };
 
 exports.update = (req, res, next) => {
@@ -67,8 +65,7 @@ exports.update = (req, res, next) => {
 var upsertOne = function(listing,callback) {
   var upsertCallback = {
     onNotFound: () => {
-      listing.initial_sold_quantity = listing.sold_quantity;
-      return Listing.create(listing,callback);
+      return Listing.createInitializedListing(listing,callback);
     },
     onSuccess: (err,item) => {
       var newQuantity = listing.sold_quantity - item.initial_sold_quantity;

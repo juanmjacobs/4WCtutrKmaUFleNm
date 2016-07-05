@@ -31,4 +31,9 @@ ListingSchema.methods.toJSON = function() {
   return _.omit(this.toObject(), ['_id', '__v']);
 };
 
+ListingSchema.statics.createInitializedListing = function(listing, callback) {
+  listing.initial_sold_quantity = listing.sold_quantity;
+  return this.create(listing,callback);
+};
+
 module.exports = mongoose.model('Listing', ListingSchema);
