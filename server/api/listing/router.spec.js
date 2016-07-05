@@ -122,7 +122,7 @@ describe('Listing', () => {
         seller_id: 1234,
         sold_quantity: 20
       };
-      var data = [iphone]
+      var data = [iphone];
 
       request(app).post('/listings/upsert').send(data).expect(200, {
         ok:[
@@ -146,13 +146,29 @@ describe('Listing', () => {
         title: "iPhone 6s 32GB",
         seller_id: 1234
       };
-      var data = [iphone]
+      var data = [iphone];
 
       request(app).post('/listings/upsert').send(data).expect(200, {
         ok:[ ],
         err: [ iphone ]
         
       }, done);
+
+    });
+
+      it('should return 400 Bad Request when requested with more than 50 elements in body array', (done) => {
+       var iphone = {
+        listing_id: "MLA1234",
+        title: "iPhone 6s 32GB",
+        seller_id: 1234,
+        sold_quantity: 20
+      };
+      var data = [];
+      for(var i = 0; i < 59; i++) {
+        data.push(iphone);
+      }
+
+      request(app).post('/listings/upsert').send(data).expect(400, done);
 
     });
 
