@@ -1,6 +1,7 @@
 var Listing = require("./listing.model");
 var async = require("async");
 var UPSERT_LISTING_LIMIT = 50;
+var NOOP = () => {};
 
 var send = (res, next) =>
   (err, response) => {
@@ -10,18 +11,32 @@ var send = (res, next) =>
     return res.json(response);
   };
 
-var findOne = (req, next, callback) => {
+var findByListingId = (listing_id, callback) => {
+  var onNotFound = callback.onNotFound || NOOP;
+  var onSuccess = callback.onSuccess || NOOP;
+  
   return Listing.findOne({
-    listing_id: req.params.listing_id
+    listing_id: listing_id
   }, (err, listing) => {
     if (!err && (listing == null)) {
-      return next({
-        name: 'NotFound'
-      });
+      return onNotFound();
     }
-    return callback(err, listing);
+    return onSuccess(err, listing);
   });
 };
+
+var findOne = (req, next, callback) => {
+  var findCallback = {
+    onNotFound: () => {
+      return next({ 
+        name: 'NotFound'
+      })
+    },
+    onSuccess: callback
+  };
+  return findByListingId(req.params.listing_id,findCallback);
+};
+
 
 exports.getAll = (req, res, next) => Listing.find({}, send(res, next))
 
@@ -50,29 +65,29 @@ exports.update = (req, res, next) => {
 };
 
 var upsertOne = function(listing,callback) {
-  
-  Listing.findOne({listing_id : listing.listing_id}, function(err,item){
-    if(!err && item == null) {
+  var upsertCallback = {
+    onNotFound: () => {
       listing.initial_sold_quantity = listing.sold_quantity;
       return Listing.create(listing,callback);
+    },
+    onSuccess: (err,item) => {
+      var newQuantity = listing.sold_quantity - item.initial_sold_quantity;
+      if (item.quantity == newQuantity) {
+        return callback(null,item);
+      }
+      item.quantity = newQuantity;
+      return item.save((err) => callback(err,item));
     }
+  };
 
-    var newQuantity = listing.sold_quantity - item.initial_sold_quantity;
-    if (item.quantity == newQuantity) {
-      return callback(null,item);
-    }
-    item.quantity = newQuantity;
-    return item.save((err) => callback(err,item));
-    
-  });
-
+  return findByListingId (listing.listing_id,upsertCallback);
 }
 
 exports.upsert = (req, res, next) => {
   var listings = req.body, 
       i = -1;
   if(listings.length > UPSERT_LISTING_LIMIT) {
-    return res.status(400).send();
+    return res.status(400).send("Listing limit exceeded");
   }
 
   var rv = {
@@ -96,8 +111,6 @@ exports.upsert = (req, res, next) => {
           }
           done()
       })
-
-      
     },
     (err) => { 
       if(err) {
