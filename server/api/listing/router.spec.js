@@ -140,6 +140,22 @@ describe('Listing', () => {
 
     });
 
+    it('should put listing with missing property in err array of result for further processing', (done) => {
+       var iphone = {
+        listing_id: "MLA1234",
+        title: "iPhone 6s 32GB",
+        seller_id: 1234
+      };
+      var data = [iphone]
+
+      request(app).post('/listings/upsert').send(data).expect(200, {
+        ok:[ ],
+        err: [ iphone ]
+        
+      }, done);
+
+    });
+
   });
   
 });
