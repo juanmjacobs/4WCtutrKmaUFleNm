@@ -11,4 +11,6 @@ router.get("/:listing_id", controller.getOne);
 
 router.put("/:listing_id", controller.update);
 
+router.post("/upsert", controller.upsert);
+
 module.exports = router;

@@ -1,4 +1,5 @@
 var Listing = require("./listing.model");
+var async = require("async");
 
 var send = (res, next) =>
   (err, response) => {
@@ -45,4 +46,63 @@ exports.update = (req, res, next) => {
     listing.quantity = newQuantity;
     return listing.save((err) => send(res, next)(err, listing));
   });
+};
+
+var upsertOne = function(listing,callback) {
+  
+  Listing.findOne({listing_id : listing.listing_id}, function(err,item){
+    if(!err && item == null) {
+      listing.initial_sold_quantity = listing.sold_quantity;
+      return Listing.create(listing,callback);
+    }
+
+    var newQuantity = listing.sold_quantity - item.initial_sold_quantity;
+    if (item.quantity == newQuantity) {
+      return callback(null,item);
+    }
+    item.quantity = newQuantity;
+    return item.save((err) => callback(err,item));
+    
+  });
+
+}
+
+exports.upsert = (req, res, next) => {
+  var listings = req.body, 
+      i = -1;
+
+  var rv = {
+    ok: [],
+    err: []
+  };
+
+  async.whilst (
+
+    () => {
+      return ++i < listings.length
+    },
+    (done) => {
+
+      var listing = listings[i];
+      upsertOne(listing, function(err,item){
+          if(err) {
+            rv.err.push({listing:listing, err: err});
+          } else {
+            rv.ok.push(listing);
+          }
+          done()
+      })
+
+      
+    },
+    (err) => { 
+      if(err) {
+        return next(err) 
+      } else {
+        res.status(200).json(rv);
+      }
+      
+    }
+  );
+
 };
