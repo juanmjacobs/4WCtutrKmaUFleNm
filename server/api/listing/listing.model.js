@@ -36,4 +36,13 @@ ListingSchema.statics.createInitializedListing = function(listing, callback) {
   return this.create(listing,callback);
 };
 
+ListingSchema.statics.updateListingQuantity = function(listing, item, callback) {
+  var newQuantity = listing.sold_quantity - item.initial_sold_quantity;
+  if (item.quantity == newQuantity) {
+    return callback(null,item);
+  }
+  item.quantity = newQuantity;
+  return item.save((err) => callback(err,item));
+};
+
 module.exports = mongoose.model('Listing', ListingSchema);

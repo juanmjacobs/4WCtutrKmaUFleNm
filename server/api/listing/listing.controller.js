@@ -48,32 +48,22 @@ exports.create = (req, res, next) => {
 };
 
 exports.update = (req, res, next) => {
+  
   return findOne(req, next, (err, listing) => {
-    var newQuantity;
     if (err) {
       return next(err);
     }
-    newQuantity = req.body.sold_quantity - listing.initial_sold_quantity;
-    if (listing.quantity == newQuantity) {
-      return res.json(listing);
-    }
-    listing.quantity = newQuantity;
-    return listing.save((err) => send(res, next)(err, listing));
+    return Listing.updateListingQuantity(req.body,listing,send(res, next))
   });
 };
 
 var upsertOne = function(listing,callback) {
   var upsertCallback = {
     onNotFound: () => {
-      return Listing.createInitializedListing(listing,callback);
+      return Listing.createInitializedListing(listing, callback);
     },
     onSuccess: (err,item) => {
-      var newQuantity = listing.sold_quantity - item.initial_sold_quantity;
-      if (item.quantity == newQuantity) {
-        return callback(null,item);
-      }
-      item.quantity = newQuantity;
-      return item.save((err) => callback(err,item));
+      Listing.updateListingQuantity(listing, item, callback);
     }
   };
 
