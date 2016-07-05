@@ -86,7 +86,7 @@ exports.upsert = (req, res, next) => {
       var listing = listings[i];
       upsertOne(listing, function(err,item){
           if(err) {
-            rv.err.push({listing:listing, err: err});
+            rv.err.push(listing);
           } else {
             rv.ok.push(item);
           }
