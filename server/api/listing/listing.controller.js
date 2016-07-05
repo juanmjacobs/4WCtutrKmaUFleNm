@@ -39,7 +39,7 @@ exports.update = (req, res, next) => {
       return next(err);
     }
     newQuantity = req.body.sold_quantity - listing.initial_sold_quantity;
-    if (listing.quantity = newQuantity) {
+    if (listing.quantity == newQuantity) {
       return res.json(listing);
     }
     listing.quantity = newQuantity;
