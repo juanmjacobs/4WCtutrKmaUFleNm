@@ -87,5 +87,34 @@ describe('Listing', () => {
     });
 
   });
+
+  describe('POST /listings/upsert', function() {
+
+    it('should update the listing if it already existed, incrementing the quantity with the difference between the current sold_quantity and the initial_sold_quantity', (done) => {
+      var newSamsung = {
+        listing_id: "MLA1111",
+        title: "Samsung Galaxy",
+        seller_id: 1234,
+        sold_quantity: 20
+      };
+      var data = [newSamsung]
+
+      request(app).post('/listings/upsert').send(data).expect(200, {
+        ok:[
+          {
+            listing_id: "MLA1111",
+            title: "Samsung Galaxy",
+            seller_id: 1234,
+            initial_sold_quantity: 12,
+            quantity: 8
+          }
+        ],
+        err: [ ]
+        
+      }, done);
+
+    });
+
+  });
   
 });
