@@ -1,5 +1,6 @@
 var Listing = require("./listing.model");
 var async = require("async");
+var UPSERT_LISTING_LIMIT = 50;
 
 var send = (res, next) =>
   (err, response) => {
@@ -70,6 +71,9 @@ var upsertOne = function(listing,callback) {
 exports.upsert = (req, res, next) => {
   var listings = req.body, 
       i = -1;
+  if(listings.length > UPSERT_LISTING_LIMIT) {
+    return res.status(400).send();
+  }
 
   var rv = {
     ok: [],
