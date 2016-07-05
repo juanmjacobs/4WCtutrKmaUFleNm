@@ -115,6 +115,31 @@ describe('Listing', () => {
 
     });
 
+    it('should create the listing if it did not exist with the given sold_quantity as the initial_sold_quantity', (done) => {
+       var iphone = {
+        listing_id: "MLA1234",
+        title: "iPhone 6s 32GB",
+        seller_id: 1234,
+        sold_quantity: 20
+      };
+      var data = [iphone]
+
+      request(app).post('/listings/upsert').send(data).expect(200, {
+        ok:[
+          {
+            listing_id: "MLA1234",
+            title: "iPhone 6s 32GB",
+            seller_id: 1234,
+            initial_sold_quantity: 20,
+            quantity: 0
+          }
+        ],
+        err: [ ]
+        
+      }, done);
+
+    });
+
   });
   
 });
