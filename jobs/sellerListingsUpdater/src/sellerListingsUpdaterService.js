@@ -11,13 +11,19 @@ var SellerListingsUpdaterService = function () {}
 SellerListingsUpdaterService.prototype = {
 	start: function() {
 		var self = this;
-		self.getListings(0,(response) => {
-			self.processListings(response.totalListings)
+		console.log('')
+		console.log('Haciendo upserts de todos los listings del seller '+constants.SELLER_ID+' contra la API de listing tracker en ' + utils.listingTrackerUrl)
+		console.log('Haciendo pedido inicial a la API de ML')
+		
+		self.getListings(0,(responseML) => {
+			self.processMLResponse(responseML, (responseAPI)=>
+				self.processListings(responseAPI.totalListings)
+				)
+			
 		})
 	},
-	processMLResponse: function(response,callback) {
-		var paging = response.paging,
-			listings = response.results.map((listing) => {
+	transforMLResponseToListings: function(response) {
+		return response.results.map((listing) => {
 				return {
 					listing_id: listing.id,
 					seller_id: listing.seller.id,
@@ -25,6 +31,11 @@ SellerListingsUpdaterService.prototype = {
 					title: listing.title
 				}
 			});
+	},
+	processMLResponse: function(response,callback) {
+		var paging = response.paging,
+			self = this,
+			listings = self.transforMLResponseToListings(response);
 
 		utils.listingTrackerUpsert(listings, (error,response, body) => { 
 					
@@ -45,24 +56,27 @@ SellerListingsUpdaterService.prototype = {
 	getListings: function(offset,callback) {
 		var self = this;
 		utils.mercadolibreSearchGet(offset, (response) => {
-			self.processMLResponse(response,callback);
+			callback(response);
 		});
 		
 	},
 	processListings: function(totalListings) {
 		self = this;
 		var q = async.queue((offset, next) => {
-		    self.getListings(offset, (x) => {
-		    	next()
+		    self.getListings(offset, (response) => {
+		    	self.processMLResponse(response,()=>next());
+		    	
 		    }) 
 		}, constants.SIMULTANEOUS_REQUESTS);
 
 
 		q.drain = () => {
-		    console.log('All items have been processed');
+		    console.log('');
+		    console.log('Se ha finalizado el proceso.');
 		}
-		
+
 		var offsets = self.getBatchesOffset(totalListings);
+		console.log('Tiene '+totalListings+' listings en total. Se haran '+offsets.length+' pedidos mas a la API de ML (se piden de a '+constants.OFFSET_STEP+' por vez)');
 		for(var offset in offsets) q.push(offsets[offset])
 		
 	},
