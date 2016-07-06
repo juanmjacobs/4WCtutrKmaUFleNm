@@ -3,6 +3,7 @@ var request = require('request');
 var Utils = require('./utils');
 var utils = new Utils(process.argv);
 var constants = require('../config/constants');
+var _ = require('lodash');
 
 
 var SellerListingsUpdaterService = function () {}
@@ -50,8 +51,8 @@ SellerListingsUpdaterService.prototype = {
 	},
 	processListings: function(totalListings) {
 		self = this;
-		var q = async.queue((task, next) => {
-		    self.getListings(task.offset, (x) => {
+		var q = async.queue((offset, next) => {
+		    self.getListings(offset, (x) => {
 		    	next()
 		    }) 
 		}, constants.SIMULTANEOUS_REQUESTS);
@@ -60,11 +61,13 @@ SellerListingsUpdaterService.prototype = {
 		q.drain = () => {
 		    console.log('All items have been processed');
 		}
-
-		for(var i = constants.OFFSET_STEP; i < totalListings; i += constants.OFFSET_STEP){
-		   q.push({offset:i});
-		}
 		
+		var offsets = self.getBatchesOffset(totalListings);
+		for(var offset in offsets) q.push(offsets[offset])
+		
+	},
+	getBatchesOffset: function(totalListings) {
+		return _.range(constants.OFFSET_STEP,totalListings,constants.OFFSET_STEP)
 	}
 }
 
