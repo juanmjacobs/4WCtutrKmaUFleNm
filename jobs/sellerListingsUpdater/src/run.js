@@ -1,14 +1,9 @@
 var async = require('async');
 var request = require('request');
 var Utils = require('./utils');
-
 var utils = new Utils(process.argv);
+var constants = require('../config/constants');
 
-
-var OFFSET_STEP = 50;
-var SIMULTANEOUS_REQUESTS = 5;
-
-var allListings = 0;
 
 function processMLResponse(response,callback) {
 	var paging = response.paging,
@@ -56,14 +51,14 @@ function processListings(totalListings) {
 	    getListings(task.offset, function(x) {
 	    	next()
 	    }) 
-	}, SIMULTANEOUS_REQUESTS);
+	}, constants.SIMULTANEOUS_REQUESTS);
 
 
 	q.drain = function() {
 	    console.log('all items have been processed');
 	}
 
-	for(var i = OFFSET_STEP; i < totalListings; i += OFFSET_STEP){
+	for(var i = constants.OFFSET_STEP; i < totalListings; i += constants.OFFSET_STEP){
 	   q.push({offset:i});
 	}
 	

@@ -1,10 +1,10 @@
 var request = require('request');
-var SELLER_ID = 154901871;
-var LOCAL_LISTING_TRACKER = "http://localhost:9000";
+var constants = require('../config/constants');
+
 var LISTING_TRACKER_URL;
 function Utils(argv) { 
 	
-	LISTING_TRACKER_URL = this.getUrlFromArguments(argv, LOCAL_LISTING_TRACKER);
+	LISTING_TRACKER_URL = this.getUrlFromArguments(argv, constants.LOCAL_LISTING_TRACKER_URL);
 
 }
 
@@ -13,7 +13,7 @@ Utils.prototype = {
 	mercadolibreSearchGet: (offset, callback) => {
 		request({
 		    url: 'https://api.mercadolibre.com/sites/MLM/search',
-		    qs: {seller_id: SELLER_ID, offset: offset, attributes:'results,paging'},
+		    qs: {seller_id: constants.SELLER_ID, offset: offset, attributes:'results,paging'},
 		    json: true,
 		}, function(error, status, response){
 		    if(error) {
@@ -31,11 +31,10 @@ Utils.prototype = {
 		    callback
 		);
 	},
-	getUrlFromArguments: function (argv, defaultPort) {
-		var obtainedPort = this.getFromArguments(argv, "url");
-		var port = (obtainedPort != null)? obtainedPort : defaultPort;
-		console.log(port);
-		return port;
+	getUrlFromArguments: function (argv, defaultValue) {
+		var obtained = this.getFromArguments(argv, "url");
+		var url = (obtained != null)? obtained : defaultValue;
+		return url;
 	},
 
 	getFromArguments: function (argv, argument) {
