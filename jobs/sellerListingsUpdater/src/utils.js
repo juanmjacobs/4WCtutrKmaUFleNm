@@ -15,7 +15,7 @@ Utils.prototype = {
 		    url: 'https://api.mercadolibre.com/sites/MLM/search',
 		    qs: {seller_id: constants.SELLER_ID, offset: offset, attributes:'results,paging'},
 		    json: true,
-		}, function(error, status, response){
+		}, (error, status, response) => {
 		    if(error) {
 		        console.log(error);
 		    } else {
@@ -39,7 +39,7 @@ Utils.prototype = {
 
 	getFromArguments: function (argv, argument) {
 		var ret = null
-		argv.forEach(function(val, index, array) {
+		argv.forEach((val, index, array) => {
 			if (val.indexOf(argument) > -1) {
 				if (val.indexOf("=")  > -1) {
 					ret =  splitBy(val, "=")

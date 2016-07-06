@@ -35,7 +35,7 @@ function processMLResponse(response,callback) {
 function getListings(offset,callback) {
 
 	var cb = callback || () => {};
-	utils.mercadolibreSearchGet(offset,function (response) {
+	utils.mercadolibreSearchGet(offset, (response) => {
 		processMLResponse(response,cb);
 	});
 	
@@ -47,14 +47,14 @@ function initProcess() {
 }
 function processListings(totalListings) {
 	
-	var q = async.queue(function (task, next) {
-	    getListings(task.offset, function(x) {
+	var q = async.queue((task, next) => {
+	    getListings(task.offset, (x) => {
 	    	next()
 	    }) 
 	}, constants.SIMULTANEOUS_REQUESTS);
 
 
-	q.drain = function() {
+	q.drain = () => {
 	    console.log('all items have been processed');
 	}
 
