@@ -1,21 +1,21 @@
 var request = require('request');
 var constants = require('../config/constants');
 
-var Utils = function(argv,logger) {
+var Utils = function(argv, logger) {
 	this.listingTrackerUrl = this.getUrlFromArguments(argv, constants.LOCAL_LISTING_TRACKER_URL);
 	this.logger = logger;
 }
 
 Utils.prototype = {
 
-	mercadolibreSearchGet: function(offset, callback,retries) {
+	mercadolibreSearchGet: function(offset, callback, retries) {
 		var self = this,
 			currentRetries = retries || 0;
 
-			if(currentRetries>0) {
+		if (currentRetries > 0) {
 
-				self.logger.info('REINTENTO '+currentRetries+' de '+constants.RETRIES_TO_ML+' de batch con offset: ' + offset)
-			}
+			self.logger.info('REINTENTO ' + currentRetries + ' de ' + constants.RETRIES_TO_ML + ' de batch con offset: ' + offset)
+		}
 
 		request({
 			url: constants.ML_SEARCH_URL,
@@ -32,8 +32,8 @@ Utils.prototype = {
 				callback(response);
 			} else {
 				self.logger.error('Error al obtener batch con offset: ' + offset + ". Status code: " + status.statusCode)
-				if(currentRetries<constants.RETRIES_TO_ML) {
-					self.mercadolibreSearchGet(offset,callback,currentRetries+1)	
+				if (currentRetries < constants.RETRIES_TO_ML) {
+					self.mercadolibreSearchGet(offset, callback, currentRetries + 1)
 				} else {
 					self.logger.error('No se seguirá reintentando para el batch con offset: ' + offset)
 				}

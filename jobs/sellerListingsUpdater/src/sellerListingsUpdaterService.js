@@ -1,9 +1,12 @@
 var async = require('async');
 var request = require('request');
 var logger = require('nodejslogger')
-logger.init({"file":"serviceLog.txt", "mode":"DIE"})
+logger.init({
+	"file": "serviceLog.txt",
+	"mode": "DIE"
+})
 var Utils = require('./utils');
-var utils = new Utils(process.argv,logger);
+var utils = new Utils(process.argv, logger);
 var constants = require('../config/constants');
 var _ = require('lodash');
 
@@ -13,7 +16,7 @@ var SellerListingsUpdaterService = function() {}
 SellerListingsUpdaterService.prototype = {
 	start: function() {
 		var self = this;
-		
+
 		logger.info('Haciendo upserts de todos los listings del seller ' + constants.SELLER_ID + ' contra la API de listing tracker en ' + utils.listingTrackerUrl)
 		logger.info('Haciendo pedido inicial a la API de ML')
 
@@ -46,9 +49,9 @@ SellerListingsUpdaterService.prototype = {
 
 			if (!error && response.statusCode == 200) {
 				logger.info("Finalizado batch con offset: " + paging.offset + " OK: " + body.ok.length + " ERR: " + body.err.length)
-				
+
 			} else {
-				logger.error("Error procesando batch con offset: " + paging.offset +" - " + error)
+				logger.error("Error procesando batch con offset: " + paging.offset + " - " + error)
 			}
 
 			callback({
