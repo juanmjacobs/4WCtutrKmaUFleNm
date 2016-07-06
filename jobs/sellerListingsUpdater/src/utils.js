@@ -15,8 +15,10 @@ Utils.prototype = {
 		}, (error, status, response) => {
 		    if(error) {
 		        console.log(error);
-		    } else {
+		    } else if (status.statusCode == 200){
 		        callback(response);
+		    } else {
+		    	console.log('Error al obtener batch con offset: '+offset+". Status code: " + status.statusCode)
 		    }
 		});	
 	},
