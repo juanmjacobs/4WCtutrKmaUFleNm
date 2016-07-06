@@ -26,7 +26,16 @@ describe('SellerListingsUpdater', () => {
     }
     done();
   });
+  
+  it('should get 2 batches for a seller with 110 listings', (done) => {
 
+    var batchesOffset = service.getBatchesOffset(110);
+
+    batchesOffset.should.eql([1,2].map((offset)=>{return offset*constants.OFFSET_STEP}));
+    done();
+  
+  });
+  
   it('should get and map first batch of listings', (done) => {
 
     var mercadolibre = nock(constants.ML_API_URL)
