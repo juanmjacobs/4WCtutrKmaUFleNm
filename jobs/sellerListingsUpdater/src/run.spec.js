@@ -87,7 +87,7 @@ describe('SellerListingsUpdater', () => {
 
   it('should send all listings in responseML to listing tracker API and upsert them', (done) => {
     
-     var listingTracker = nock('http://localhost:9000')
+     var listingTracker = nock(service.getCurrentListingTrackerUrl())
                 .post('/listings/upsert',[samsungListing,iphoneListing])
                 .reply(200, {
                    ok:[ 

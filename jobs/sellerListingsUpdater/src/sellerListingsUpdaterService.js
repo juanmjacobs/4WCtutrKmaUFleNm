@@ -22,6 +22,9 @@ SellerListingsUpdaterService.prototype = {
 			
 		})
 	},
+	getCurrentListingTrackerUrl: function() {
+		return utils.listingTrackerUrl;
+	},
 	transforMLResponseToListings: function(response) {
 		return response.results.map((listing) => {
 				return {
