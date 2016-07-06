@@ -1,13 +1,22 @@
 var request = require('request');
 var constants = require('../config/constants');
 
-var Utils = function(argv) {
+var Utils = function(argv,logger) {
 	this.listingTrackerUrl = this.getUrlFromArguments(argv, constants.LOCAL_LISTING_TRACKER_URL);
+	this.logger = logger;
 }
 
 Utils.prototype = {
 
-	mercadolibreSearchGet: (offset, callback) => {
+	mercadolibreSearchGet: function(offset, callback,retries) {
+		var self = this,
+			currentRetries = retries || 0;
+
+			if(currentRetries>0) {
+
+				self.logger.info('REINTENTO '+currentRetries+' de '+constants.RETRIES_TO_ML+' de batch con offset: ' + offset)
+			}
+
 		request({
 			url: constants.ML_SEARCH_URL,
 			qs: {
@@ -18,11 +27,16 @@ Utils.prototype = {
 			json: true,
 		}, (error, status, response) => {
 			if (error) {
-				console.log(error);
+				self.logger.error(error);
 			} else if (status.statusCode == 200) {
 				callback(response);
 			} else {
-				console.log('Error al obtener batch con offset: ' + offset + ". Status code: " + status.statusCode)
+				self.logger.error('Error al obtener batch con offset: ' + offset + ". Status code: " + status.statusCode)
+				if(currentRetries<constants.RETRIES_TO_ML) {
+					self.mercadolibreSearchGet(offset,callback,currentRetries+1)	
+				} else {
+					self.logger.error('No se seguirá reintentando para el batch con offset: ' + offset)
+				}
 			}
 		});
 	},
