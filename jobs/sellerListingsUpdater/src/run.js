@@ -1,33 +1,49 @@
 var async = require('async');
 var request = require('request');
-var SELLER_ID = 154901871;
+var Utils = require('./utils');
+
+var utils = new Utils(process.argv);
+
+
 var OFFSET_STEP = 50;
 var SIMULTANEOUS_REQUESTS = 5;
 
 var allListings = 0;
+
 function processMLResponse(response,callback) {
 	var paging = response.paging,
-		listings = response.results;
-	allListings += listings.length;
-	console.log(allListings)
-	callback(paging.total);
+		listings = response.results.map((listing) => {
+			return {
+				listing_id: listing.id,
+				seller_id: listing.seller.id,
+				sold_quantity: listing.sold_quantity,
+				title: listing.title
+			}
+		});
 
+	utils.listingTrackerUpsert(listings, (error,response, body) => { 
+				
+        if (!error && response.statusCode == 200) {
+        	console.log("Finalizado batch con offset: "+paging.offset
+				+" OK: "+body.ok.length
+				+" ERR: "+body.err.length
+			)
+			console.log('-------------');
+		} else {
+			console.log("Error procesando batch con offset: "+paging.offset)
+		}
+
+		callback(paging.total);
+
+	})
 }
 function getListings(offset,callback) {
 
 	var cb = callback || () => {};
-	request({
-	    url: 'https://api.mercadolibre.com/sites/MLM/search',
-	    qs: {seller_id: SELLER_ID, offset: offset, attributes:'results,paging'},
-	    json: true,
-	    
-	}, function(error, status, response){
-	    if(error) {
-	        console.log(error);
-	    } else {
-	        processMLResponse(response,cb);
-	    }
-	});	
+	utils.mercadolibreSearchGet(offset,function (response) {
+		processMLResponse(response,cb);
+	});
+	
 }
 function initProcess() {
 	getListings(0,(totalListings) => {
