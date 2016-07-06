@@ -1,11 +1,8 @@
 var request = require('request');
 var constants = require('../config/constants');
 
-var LISTING_TRACKER_URL;
-function Utils(argv) { 
-	//TODO: reemplazar la variable LISTING_TRACKER_URL por variable de instancia
-	LISTING_TRACKER_URL = this.getUrlFromArguments(argv, constants.LOCAL_LISTING_TRACKER_URL);
-
+var Utils = function(argv) { 
+	this.listingTrackerUrl = this.getUrlFromArguments(argv, constants.LOCAL_LISTING_TRACKER_URL);
 }
 
 Utils.prototype = {
@@ -23,7 +20,7 @@ Utils.prototype = {
 		    }
 		});	
 	},
-	listingTrackerUpsert: (listings, callback) => {
+	listingTrackerUpsert: function(listings, callback) {
 		var self = this;
 		request.post(
 		    LISTING_TRACKER_URL+'/listings/upsert',
