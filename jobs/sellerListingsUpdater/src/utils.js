@@ -23,7 +23,7 @@ Utils.prototype = {
 	listingTrackerUpsert: function(listings, callback) {
 		var self = this;
 		request.post(
-		    LISTING_TRACKER_URL+'/listings/upsert',
+		    self.listingTrackerUrl+'/listings/upsert',
 		    { json: listings },
 		    callback
 		);
