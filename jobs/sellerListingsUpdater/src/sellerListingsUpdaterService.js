@@ -10,8 +10,8 @@ var SellerListingsUpdaterService = function () {}
 SellerListingsUpdaterService.prototype = {
 	start: function() {
 		var self = this;
-		self.getListings(0,(totalListings) => {
-			self.processListings(totalListings)
+		self.getListings(0,(response) => {
+			self.processListings(response.totalListings)
 		})
 	},
 	processMLResponse: function(response,callback) {
@@ -37,15 +37,14 @@ SellerListingsUpdaterService.prototype = {
 				console.log("Error procesando batch con offset: "+paging.offset)
 			}
 
-			callback(paging.total);
+			callback({response: body, totalListings: paging.total});
 
 		})
 	},
 	getListings: function(offset,callback) {
 		var self = this;
-		var cb = callback || () => {};
 		utils.mercadolibreSearchGet(offset, (response) => {
-			self.processMLResponse(response,cb);
+			self.processMLResponse(response,callback);
 		});
 		
 	},
