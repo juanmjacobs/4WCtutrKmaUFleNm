@@ -3,7 +3,7 @@ var constants = require('../config/constants');
 
 var LISTING_TRACKER_URL;
 function Utils(argv) { 
-	
+	//TODO: reemplazar la variable LISTING_TRACKER_URL por variable de instancia
 	LISTING_TRACKER_URL = this.getUrlFromArguments(argv, constants.LOCAL_LISTING_TRACKER_URL);
 
 }
@@ -12,7 +12,7 @@ Utils.prototype = {
 
 	mercadolibreSearchGet: (offset, callback) => {
 		request({
-		    url: 'https://api.mercadolibre.com/sites/MLM/search',
+		    url: constants.ML_SEARCH_URL,
 		    qs: {seller_id: constants.SELLER_ID, offset: offset, attributes:'results,paging'},
 		    json: true,
 		}, (error, status, response) => {
