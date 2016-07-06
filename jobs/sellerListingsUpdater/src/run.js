@@ -1,1 +1,2 @@
-// Place your code here
+var service = require('./sellerListingsUpdaterService');
+service.start();
