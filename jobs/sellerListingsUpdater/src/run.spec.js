@@ -69,19 +69,76 @@ describe('SellerListingsUpdater', () => {
   
   });
 
-  it('should get 2 batches for a seller with 110 listings', (done) => {
+  it('should get 2 batches for a seller with 110 listings with offset step 50', (done) => {
 
     var batchesOffset = service.getBatchesOffset(110);
-
-    batchesOffset.should.eql([1,2].map((offset)=>{return offset*constants.OFFSET_STEP}));
+    batchesOffset.should.eql([50,100]);
     done();
   
   });
 
   it('should map response from mercadolibre to a listing array with the format of listing tracker API', (done) => {
+    
     var listings = service.transforMLResponseToListings(responseML);
     listings.should.eql([samsungListing,iphoneListing]);
     done();
+
   });
+
+  it('should send all listings in responseML to listing tracker API and upsert them', (done) => {
+    
+     var listingTracker = nock('http://localhost:9000')
+                .post('/listings/upsert',[samsungListing,iphoneListing])
+                .reply(200, {
+                   ok:[ 
+                        {
+                          listing_id:'MLM1111',
+                          initial_sold_quantity: 11,
+                          quantity:0,
+                          title: "Samsung Galaxy",
+                          seller_id: constants.SELLER_ID 
+                        },
+                        {
+                          listing_id:'MLM2222',
+                          initial_sold_quantity: 22,
+                          quantity:0,
+                          title: "iPhone 6",
+                          seller_id: constants.SELLER_ID 
+                        }
+                    ],
+                   err:[]
+                 });
+
+    
+    service.processMLResponse(responseML, (responseAPI)=>{
+        responseAPI.should.eql({
+          response: {
+            ok:[ 
+                {
+                  listing_id:'MLM1111',
+                  initial_sold_quantity: 11,
+                  quantity:0,
+                  title: "Samsung Galaxy",
+                  seller_id: constants.SELLER_ID 
+                },
+                {
+                  listing_id:'MLM2222',
+                  initial_sold_quantity: 22,
+                  quantity:0,
+                  title: "iPhone 6",
+                  seller_id: constants.SELLER_ID 
+                }
+            ],
+           err:[]
+          },
+          totalListings:2
+          
+        });
+        done();
+    });
+    
+  });
+
+
 
 });
