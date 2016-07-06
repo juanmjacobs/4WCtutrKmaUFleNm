@@ -48,8 +48,7 @@ exports.create = (req, res, next) => {
 };
 
 exports.update = (req, res, next) => {
-  
-  return findOne(req, next, (err, listing) => {
+    return findOne(req, next, (err, listing) => {
     if (err) {
       return next(err);
     }
@@ -60,7 +59,7 @@ exports.update = (req, res, next) => {
 var upsertOne = function(listing,callback) {
   var upsertCallback = {
     onNotFound: () => {
-      return Listing.createInitializedListing(listing, callback);
+      Listing.createInitializedListing(listing, callback);
     },
     onSuccess: (err,item) => {
       Listing.updateListingQuantity(listing, item, callback);
@@ -90,7 +89,7 @@ exports.upsert = (req, res, next) => {
     (done) => {
 
       var listing = listings[i];
-      upsertOne(listing, function(err,item){
+      upsertOne(listing, (err,item) => {
           if(err) {
             rv.err.push(listing);
           } else {

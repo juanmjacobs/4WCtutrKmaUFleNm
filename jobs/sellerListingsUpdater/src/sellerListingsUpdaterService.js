@@ -73,8 +73,7 @@ SellerListingsUpdaterService.prototype = {
 		}, constants.SIMULTANEOUS_REQUESTS);
 
 
-		q.drain = () => {
-		    console.log('');
+		q.drain =  () => {
 		    console.log('Se ha finalizado el proceso.');
 		}
 
