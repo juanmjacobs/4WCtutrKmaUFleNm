@@ -59,7 +59,7 @@ SellerListingsUpdaterService.prototype = {
 
 
 		q.drain = () => {
-		    console.log('all items have been processed');
+		    console.log('All items have been processed');
 		}
 
 		for(var i = constants.OFFSET_STEP; i < totalListings; i += constants.OFFSET_STEP){
