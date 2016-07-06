@@ -100,23 +100,21 @@ describe('Listing', () => {
       var data = [newSamsung]
 
       request(app).post('/listings/upsert').send(data).expect(200, {
-        ok:[
-          {
-            listing_id: "MLA1111",
-            title: "Samsung Galaxy",
-            seller_id: 1234,
-            initial_sold_quantity: 12,
-            quantity: 8
-          }
-        ],
-        err: [ ]
-        
+        ok: [{
+          listing_id: "MLA1111",
+          title: "Samsung Galaxy",
+          seller_id: 1234,
+          initial_sold_quantity: 12,
+          quantity: 8
+        }],
+        err: []
+
       }, done);
 
     });
 
     it('should create the listing if it did not exist with the given sold_quantity as the initial_sold_quantity', (done) => {
-       var iphone = {
+      var iphone = {
         listing_id: "MLA1234",
         title: "iPhone 6s 32GB",
         seller_id: 1234,
@@ -125,23 +123,21 @@ describe('Listing', () => {
       var data = [iphone];
 
       request(app).post('/listings/upsert').send(data).expect(200, {
-        ok:[
-          {
-            listing_id: "MLA1234",
-            title: "iPhone 6s 32GB",
-            seller_id: 1234,
-            initial_sold_quantity: 20,
-            quantity: 0
-          }
-        ],
-        err: [ ]
-        
+        ok: [{
+          listing_id: "MLA1234",
+          title: "iPhone 6s 32GB",
+          seller_id: 1234,
+          initial_sold_quantity: 20,
+          quantity: 0
+        }],
+        err: []
+
       }, done);
 
     });
 
     it('should put listing with missing property in err array of result for further processing', (done) => {
-       var iphone = {
+      var iphone = {
         listing_id: "MLA1234",
         title: "iPhone 6s 32GB",
         seller_id: 1234
@@ -149,22 +145,22 @@ describe('Listing', () => {
       var data = [iphone];
 
       request(app).post('/listings/upsert').send(data).expect(200, {
-        ok:[ ],
-        err: [ iphone ]
-        
+        ok: [],
+        err: [iphone]
+
       }, done);
 
     });
 
-      it('should return 400 Bad Request when requested with more than 50 elements in body array', (done) => {
-       var iphone = {
+    it('should return 400 Bad Request when requested with more than 50 elements in body array', (done) => {
+      var iphone = {
         listing_id: "MLA1234",
         title: "iPhone 6s 32GB",
         seller_id: 1234,
         sold_quantity: 20
       };
       var data = [];
-      for(var i = 0; i < 59; i++) {
+      for (var i = 0; i < 59; i++) {
         data.push(iphone);
       }
 
@@ -173,5 +169,5 @@ describe('Listing', () => {
     });
 
   });
-  
+
 });
